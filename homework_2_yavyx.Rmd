@@ -1,0 +1,156 @@
+---
+title: "Homework 2"
+author: "Javier Castillo-Arnemann"
+output: github_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+In this homework assignment we will use `dplyr` and `ggplot2` to explore the `gapminder` dataset.
+
+First, we'll load the data and libraries:
+```{r}
+library(tidyverse)
+library(gapminder)
+```
+
+##Smelling the Data
+* Is it a data.frame, a matrix, a vector, a list?
+```{r}
+typeof(gapminder)
+```
+We can see that R considers gapminder a list in its internal structure.
+
+* What is its class?
+```{r}
+class(gapminder)
+```
+Its class is a tibble, which is a special type of data frame.
+
+* How many variables/columns?
+```{r}
+ncol(gapminder)
+```
+It has 6 variables/columns.
+
+* How many rows/observations?
+```{r}
+nrow(gapminder)
+```
+It has 6 rows/observations.
+
+* Can you get these facts about “extent” or “size” in more than one way? Can you imagine different functions being useful in different contexts?
+```{r}
+dim(gapminder)
+```
+The `dim()` function also works for this purpose, and would be more suitable if we wanted both the number of rows and columns at the same time.
+
+* What data type is each variable?
+```{r}
+sapply(gapminder, typeof)
+```
+
+##Exploring an individual variable
+* What are possible values (or range, whichever is appropriate) of each variable?
+For country, the possible values are:
+```{r}
+summary(gapminder)
+```
+Here we can see the minimum and maximum value for each quantitative variable, and we also see that the categorical variable `continent` has 5 possible values. However, we can't see the total amount of possible values for `country`, so we can do the following:
+```{r}
+length(levels(gapminder$country))
+```
+Here we see there are 142 possible values for `country`.
+
+* What values are typical? What’s the spread? What’s the distribution? Etc., tailored to the variable at hand.
+```{r}
+ggplot(gapminder, aes(lifeExp)) +
+  geom_density(color = "red")
+
+ggplot(gapminder, aes(pop)) +
+  geom_histogram(color = "blue", fill ="blue") +
+  scale_y_log10()
+
+ggplot(gapminder, aes(gdpPercap)) +
+  geom_histogram(color = "green", fill ="green") +
+  scale_y_log10()
+```
+
+We can see that the life expectancy is a little bimodal, where the two most common values are around 45 and 79. For population and life expectancy, we used a logarithmic scale because some values were overwhelmingly common.
+
+##Exploring various plot types
+We'll work just with Africa from 1960 onwards for the following plots.
+
+Let's see the relationship between Life Expectancy and GDP per capita.
+```{r}
+gapminder_africa <- gapminder %>%
+  filter(continent == "Africa") %>%
+  filter(year >= 1960)
+
+ggplot(gapminder_africa, aes(lifeExp, gdpPercap)) +
+  geom_point(color = "blue", shape = 2) +
+  scale_y_log10() +
+  geom_smooth()
+```
+
+There seems to be a positive correlation between these two variables.
+
+We can also check if there's a relationship between population and GDP per capita, and do it for every measured year.
+```{r}
+ggplot(gapminder_africa) +
+  facet_wrap(~ year, scales = "free_x", ncol = 5) +
+  geom_point(aes(pop, gdpPercap), size = 1) +
+  scale_y_log10() +
+  scale_x_log10()
+```
+
+Here, these two variables don't appear to be strongly correlated in any particular year.
+
+For the next plots, we'll only use data from Oceania. First, we'll check the distribution of the GDP per capita in each country.
+```{r}
+gapminder %>%
+  filter(continent == "Oceania") %>%
+  ggplot(aes(country, gdpPercap)) +
+  geom_violin(color = "yellow", fill = "yellow") +
+  xlab("Country") +
+  ylab("GDP per Capita")
+```
+
+We can also check the correlation between GDP per capita and life expectancy, and separate both countries by color.
+```{r}
+gapminder %>%
+  filter(continent == "Oceania") %>%
+  ggplot(aes(lifeExp, gdpPercap)) +
+  geom_point(aes(color = country)) +
+  scale_y_log10() +
+  scale_x_log10() +
+  xlab("Life Expectancy") +
+  ylab("GDP per Capita")
+```
+
+Here we can see again a very strong correlation between GDP per capita and Life Expectancy.
+
+Finally, we can check is this trend happens in every continent, first arranging the data frame by year so we also have a chronological order.
+```{r}
+arrange(gapminder, year) %>%
+  ggplot(aes(lifeExp, gdpPercap)) +
+  facet_wrap(~ continent) +
+  geom_point(size = 1) +
+  scale_y_log10() +
+  scale_x_log10() +
+  xlab("Life Expectancy") +
+  ylab("GDP per Capita")
+
+```
+
+##Wanting to do more
+Evaluate this code and describe the result. Presumably the analyst’s intent was to get the data for Rwanda and Afghanistan. Did they succeed? Why or why not? If not, what is the correct way to do this?
+
+```{r}
+filter(gapminder, country == c("Rwanda", "Afghanistan"))
+```
+
+Yes, it is a correct way of doing this, because the `c()` function in R creates a vector that filter can read as an argument.
