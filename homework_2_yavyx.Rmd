@@ -146,6 +146,8 @@ arrange(gapminder, year) %>%
 
 ```
 
+Here we see that the trend looks the same on all continents, although the correlation is not as strong in every continent.
+
 ##Wanting to do more
 Evaluate this code and describe the result. Presumably the analyst’s intent was to get the data for Rwanda and Afghanistan. Did they succeed? Why or why not? If not, what is the correct way to do this?
 

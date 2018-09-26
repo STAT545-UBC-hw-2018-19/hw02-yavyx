@@ -245,6 +245,8 @@ arrange(gapminder, year) %>%
 
 ![](homework_2_yavyx_files/figure-markdown_github/unnamed-chunk-15-1.png)
 
+Here we see that the trend looks the same on all continents, although the correlation is not as strong in every continent.
+
 Wanting to do more
 ------------------
 
